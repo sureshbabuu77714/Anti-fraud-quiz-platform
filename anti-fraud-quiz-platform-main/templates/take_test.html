@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block head %}<script>window.MAX_VIOLATIONS = {{ max_violations }};</script>{% endblock %}
+{% block content %}
+<div class="card security-rules">
+  <h2>Test Security Rules</h2>
+  <ul>
+    <li>The quiz must stay visible on your screen for the entire duration.</li>
+    <li>Switching tabs or hiding the test page gives warnings.</li>
+    <li>Copying, selecting, or right-clicking on quiz questions is prohibited and blocked.</li>
+    <li>The test opens in fullscreen automatically when supported. It exits fullscreen automatically after submission.</li>
+    <li>The test ends at {{ human_dt(test.end_at) }} and answers become visible after that time.</li>
+  </ul>
+</div>
+
+<div class="quiz-layout">
+  <aside class="card sticky">
+    <h3>{{ test.title }}</h3>
+    <p><strong>Targets:</strong> {{ target_label(test.target_branches, test.target_sems) }}</p>
+    <p><strong>Duration:</strong> {{ test.duration_minutes }} min</p>
+    <p><strong>Ends:</strong> {{ human_dt(test.end_at) }}</p>
+    <p><strong>Status:</strong> <span class="badge">In Progress</span></p>
+    <p><strong>Warnings:</strong> <span id="warningCount">{{ attempt.warnings_count }}</span> / {{ max_violations }}</p>
+    <p><strong>Time Left:</strong> <span id="timer">--:--</span></p>
+    <form id="submitTestForm" method="post" action="{{ url_for('submit_test', test_id=test.id) }}" onsubmit="return confirm('Submit test now?')">
+      <button class="btn success" type="submit">Submit Test</button>
+    </form>
+  </aside>
+
+  <section class="card quiz-area no-copy" id="quizArea">
+    <form id="quizForm">
+      {% for q in questions %}
+      <div class="question-block" data-question-id="{{ q.id }}">
+        <h3>Q{{ loop.index }}. {{ q.question_text }}</h3>
+        <label><input type="radio" name="q{{ q.id }}" value="A" {% if answer_map.get(q.id) == 'A' %}checked{% endif %}> A. {{ q.option_a }}</label>
+        <label><input type="radio" name="q{{ q.id }}" value="B" {% if answer_map.get(q.id) == 'B' %}checked{% endif %}> B. {{ q.option_b }}</label>
+        <label><input type="radio" name="q{{ q.id }}" value="C" {% if answer_map.get(q.id) == 'C' %}checked{% endif %}> C. {{ q.option_c }}</label>
+        <label><input type="radio" name="q{{ q.id }}" value="D" {% if answer_map.get(q.id) == 'D' %}checked{% endif %}> D. {{ q.option_d }}</label>
+      </div>
+      {% endfor %}
+    </form>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  window.QUIZ_CONTEXT = {
+    autosaveUrl: {{ url_for('autosave_answer', test_id=test.id)|tojson }},
+    violationUrl: {{ url_for('log_violation', test_id=test.id)|tojson }},
+    submitUrl: {{ url_for('submit_test', test_id=test.id)|tojson }},
+    dashboardUrl: {{ url_for('student_dashboard')|tojson }},
+    startedAt: {{ attempt.started_at|tojson }},
+    durationMinutes: {{ test.duration_minutes }},
+    endAt: {{ test.end_at|tojson }}
+  };
+</script>
+<script src="{{ url_for('static', filename='js/quiz_security.js') }}"></script>
+{% endblock %}

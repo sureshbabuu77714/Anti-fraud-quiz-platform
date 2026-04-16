@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero card simple-home">
+  <h1>Online Quiz System</h1>
+  <p>A simple platform for attending, managing, and monitoring online quizzes.</p>
+  <div class="hero-actions">
+    <a class="btn" href="{{ url_for('login', role='student') }}">Student Login</a>
+    <a class="btn muted-btn" href="{{ url_for('signup', role='student') }}">Student Sign Up</a>
+    <a class="btn light-btn" href="{{ url_for('signup', role='teacher') }}">Teacher Sign Up</a>
+    <a class="btn light-btn" href="{{ url_for('login', role='admin') }}">Admin Login</a>
+  </div>
+</section>
+
+<section class="grid two gap-lg compact-home">
+  <div class="card feature-list security-rules">
+    <h2 class="section-title">Test Security Rules</h2>
+    <ul>
+      <li>The quiz must stay visible for the full duration.</li>
+      <li>Switching tabs, minimizing the window, or leaving fullscreen gives warnings.</li>
+      <li>Copying, selecting, and right-clicking on questions are blocked.</li>
+      <li>Starting the quiz means the student accepts these rules.</li>
+    </ul>
+  </div>
+  <div class="card muted compact-roles">
+    <h2 class="section-title">Quick Access</h2>
+    <div class="role-rows">
+      <div class="role-row">
+        <div>
+          <h3>Student</h3>
+          <p>Attend tests and view results.</p>
+        </div>
+        <div class="inline-actions">
+          <a class="btn small" href="{{ url_for('login', role='student') }}">Login</a>
+          <a class="btn small light-btn" href="{{ url_for('signup', role='student') }}">Sign Up</a>
+        </div>
+      </div>
+      <div class="role-row">
+        <div>
+          <h3>Teacher</h3>
+          <p>Create tests and manage questions.</p>
+        </div>
+        <div class="inline-actions">
+          <a class="btn small" href="{{ url_for('login', role='teacher') }}">Login</a>
+          <a class="btn small light-btn" href="{{ url_for('signup', role='teacher') }}">Sign Up</a>
+        </div>
+      </div>
+      <div class="role-row">
+        <div>
+          <h3>Admin</h3>
+          <p>Manage teachers, tests, and results.</p>
+        </div>
+        <div class="inline-actions">
+          <a class="btn small" href="{{ url_for('login', role='admin') }}">Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

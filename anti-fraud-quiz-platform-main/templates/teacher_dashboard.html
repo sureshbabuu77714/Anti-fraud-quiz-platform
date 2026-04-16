@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row between center mb-1 wrap">
+  <div>
+    <h1>Teacher Dashboard</h1>
+    <p class="small muted-text">Your branch: {{ teacher_branch }}</p>
+  </div>
+  <a class="btn" href="{{ url_for('create_test') }}">Create Test</a>
+</div>
+
+<div class="card">
+  <form method="get" class="inline-form wrap">
+    <label>Branch
+      <select name="branch" onchange="this.form.submit()">
+        <option value="ALL" {{ 'selected' if selected_branch == 'ALL' }}>All</option>
+        {% for b in BRANCHES %}<option value="{{ b }}" {{ 'selected' if selected_branch == b }}>{{ b }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Semester
+      <select name="sem" onchange="this.form.submit()">
+        <option value="ALL" {{ 'selected' if selected_sem == 'ALL' }}>All</option>
+        {% for s in SEMS %}<option value="{{ s }}" {{ 'selected' if selected_sem == s }}>Sem {{ s }}</option>{% endfor %}
+      </select>
+    </label>
+  </form>
+</div>
+
+<div class="card">
+  <h2>My Tests</h2>
+  <table>
+    <tr><th>Title</th><th>Targets</th><th>Start</th><th>End</th><th>Active</th><th>Questions</th><th>Attempts</th><th>Actions</th></tr>
+    {% for t in tests %}
+    <tr>
+      <td>{{ t.title }}</td><td>{{ target_label(t.target_branches, t.target_sems) }}</td><td>{{ human_dt(t.scheduled_at) }}</td><td>{{ human_dt(t.end_at) }}</td><td>{{ 'Yes' if t.is_active else 'No' }}</td><td>{{ t.question_count }}</td><td>{{ t.attempt_count }}</td>
+      <td>
+        <div class="inline-actions">
+          <a class="btn small" href="{{ url_for('manage_test', test_id=t.id) }}">Open Test Details</a>
+          <form method="post" action="{{ url_for('teacher_delete_test', test_id=t.id, branch=selected_branch, sem=selected_sem) }}" onsubmit="return confirm('Delete this test?')" style="display:inline;">
+            <button class="btn danger small" type="submit">Delete</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    {% else %}<tr><td colspan="8">No tests yet.</td></tr>{% endfor %}
+  </table>
+</div>
+
+<div class="card">
+  <h2>All Students</h2>
+  <table>
+    <tr><th>Username</th><th>Name</th><th>Branch</th><th>Sem</th><th>Email</th></tr>
+    {% for s in students %}
+    <tr>
+      <td>{{ s.username }}</td><td>{{ s.full_name }}</td><td>{{ s.branch }}</td><td>Sem {{ s.sem }}</td><td>{{ s.email }}</td>
+    </tr>
+    {% else %}<tr><td colspan="5">No students found.</td></tr>{% endfor %}
+  </table>
+</div>
+
+{% endblock %}

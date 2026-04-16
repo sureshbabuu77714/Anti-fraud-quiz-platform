@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card form-wrap wide">
+  <h1>Create Test</h1>
+  <form method="post" class="form-grid two-col">
+    <label>Title<input type="text" name="title" required></label>
+    <label>Duration in Minutes<input type="number" name="duration_minutes" min="1" value="30" required></label>
+    <label>Start Date &amp; Time<input type="datetime-local" name="scheduled_at" required></label>
+    <label>End Date &amp; Time<input type="datetime-local" name="end_at" required></label>
+    <fieldset class="full checkbox-grid">
+      <legend>Target Branches</legend>
+      <label><input type="checkbox" name="target_branches" value="ALL" checked> All Branches</label>
+      {% for b in BRANCHES %}<label><input type="checkbox" name="target_branches" value="{{ b }}"> {{ b }}</label>{% endfor %}
+    </fieldset>
+    <fieldset class="full checkbox-grid">
+      <legend>Target Semesters</legend>
+      <label><input type="checkbox" name="target_sems" value="ALL" checked> All Sems</label>
+      {% for s in SEMS %}<label><input type="checkbox" name="target_sems" value="{{ s }}"> Sem {{ s }}</label>{% endfor %}
+    </fieldset>
+    <label class="full">Description<textarea name="description" rows="4"></textarea></label>
+    <button class="btn" type="submit">Create Test</button>
+  </form>
+</div>
+{% endblock %}

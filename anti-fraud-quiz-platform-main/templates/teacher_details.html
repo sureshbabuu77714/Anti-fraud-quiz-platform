@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <div class="actions" style="justify-content:space-between; align-items:center;">
+    <h1>Teacher Details</h1>
+    <a class="btn small muted-btn" href="{{ url_for('admin_dashboard') }}">Back to Admin Dashboard</a>
+  </div>
+  <p><strong>Name:</strong> {{ teacher.full_name }}</p>
+  <p><strong>Username:</strong> {{ teacher.username }}</p>
+  <p><strong>Email:</strong> {{ teacher.email }}</p>
+  <p><strong>Branch:</strong> {{ teacher.branch }}</p>
+  <p><strong>Credentials:</strong> {{ teacher.credentials or '-' }}</p>
+  <p><strong>Status:</strong> {% if teacher.is_rejected %}Rejected{% elif teacher.is_approved %}Approved{% else %}Pending{% endif %}</p>
+  <p><strong>Approved At:</strong> {{ human_dt(teacher.approved_at) }}</p>
+  <p><strong>Approved By:</strong> {{ teacher.approved_by_name or '-' }}</p>
+  <p><strong>Joined:</strong> {{ human_dt(teacher.created_at) }}</p>
+</div>
+
+<div class="grid two gap-lg">
+  <div class="card">
+    <h2>Teacher Summary</h2>
+    <table>
+      <tr><th>Tests Created</th><td>{{ teacher.test_count }}</td></tr>
+      <tr><th>Questions Added</th><td>{{ teacher.question_count }}</td></tr>
+      <tr><th>Total Attempts</th><td>{{ teacher.attempt_count }}</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h2>Actions</h2>
+    <form method="post" action="{{ url_for('update_teacher_status', user_id=teacher.id) }}" onsubmit="return confirm('Remove this teacher?')">
+      <input type="hidden" name="action" value="delete">
+      <button class="btn danger">Remove Teacher</button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Recent Tests</h2>
+  <table>
+    <tr><th>Title</th><th>Targets</th><th>Start</th><th>End</th><th>Status</th></tr>
+    {% for t in recent_tests %}
+    <tr>
+      <td>{{ t.title }}</td>
+      <td>{{ target_label(t.target_branches, t.target_sems) }}</td>
+      <td>{{ human_dt(t.scheduled_at) }}</td>
+      <td>{{ human_dt(t.end_at) }}</td>
+      <td>{{ 'Active' if t.is_active else 'Inactive' }}</td>
+    </tr>
+    {% else %}<tr><td colspan="5">No tests created yet.</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

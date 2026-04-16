@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Manage Test: {{ test.title }}</h1>
+<div class="grid two gap-lg">
+  <div class="card">
+    <h2>Update Test Details</h2>
+    <form method="post" action="{{ url_for('update_test', test_id=test.id) }}" class="form-grid two-col">
+      <label>Title<input type="text" name="title" value="{{ test.title }}" required></label>
+      <label>Duration<input type="number" name="duration_minutes" min="1" value="{{ test.duration_minutes }}" required></label>
+      <label>Start Date &amp; Time<input type="datetime-local" name="scheduled_at" value="{{ dt_local_value(test.scheduled_at) }}" required></label>
+      <label>End Date &amp; Time<input type="datetime-local" name="end_at" value="{{ dt_local_value(test.end_at) }}" required></label>
+      <label>Status
+        <select name="is_active">
+          <option value="1" {{ 'selected' if test.is_active }}>Active</option>
+          <option value="0" {{ 'selected' if not test.is_active }}>Inactive</option>
+        </select>
+      </label>
+      <fieldset class="full checkbox-grid">
+        <legend>Target Branches</legend>
+        <label><input type="checkbox" name="target_branches" value="ALL" {{ 'checked' if 'ALL' in csv_to_list(test.target_branches) }}> All Branches</label>
+        {% for b in BRANCHES %}<label><input type="checkbox" name="target_branches" value="{{ b }}" {{ 'checked' if b in csv_to_list(test.target_branches) }}> {{ b }}</label>{% endfor %}
+      </fieldset>
+      <fieldset class="full checkbox-grid">
+        <legend>Target Semesters</legend>
+        <label><input type="checkbox" name="target_sems" value="ALL" {{ 'checked' if 'ALL' in csv_to_list(test.target_sems) }}> All Sems</label>
+        {% for s in SEMS %}<label><input type="checkbox" name="target_sems" value="{{ s }}" {{ 'checked' if s in csv_to_list(test.target_sems) }}> Sem {{ s }}</label>{% endfor %}
+      </fieldset>
+      <label class="full">Description<textarea name="description">{{ test.description }}</textarea></label>
+      <button class="btn" type="submit">Save Test Changes</button>
+      <a class="btn muted-btn" href="{{ url_for('export_results', test_id=test.id) }}">Export Results CSV</a>
+    </form>
+    <div class="mini-list">
+      <p><strong>Teacher:</strong> {{ test.teacher_name or test.teacher_username }}</p>
+      <p><strong>Total Marks:</strong> {{ test.total_marks }}</p>
+      <p><strong>Targets:</strong> {{ target_label(test.target_branches, test.target_sems) }}</p>
+      <p><strong>Answers release at:</strong> {{ human_dt(test.end_at) }}</p>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Add Question</h2>
+    <form method="post" class="form-grid">
+      <label>Question<textarea name="question_text" required></textarea></label>
+      <label>Option A<input type="text" name="option_a" required></label>
+      <label>Option B<input type="text" name="option_b" required></label>
+      <label>Option C<input type="text" name="option_c" required></label>
+      <label>Option D<input type="text" name="option_d" required></label>
+      <label>Correct Answer
+        <select name="correct_answer" required>
+          <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+        </select>
+      </label>
+      <label>Marks<input type="number" name="marks" min="1" value="1" required></label>
+      <button class="btn" type="submit">Add MCQ</button>
+    </form>
+  </div>
+</div>
+<div class="card">
+  <h2>Questions</h2>
+  {% for q in questions %}
+  <details class="question-editor" {% if loop.first %}open{% endif %}>
+    <summary>Q{{ loop.index }}. {{ q.question_text[:90] }}{% if q.question_text|length > 90 %}...{% endif %}</summary>
+    <form method="post" action="{{ url_for('update_question', question_id=q.id) }}" class="form-grid two-col mt-1">
+      <label class="full">Question<textarea name="question_text" required>{{ q.question_text }}</textarea></label>
+      <label>Option A<input type="text" name="option_a" value="{{ q.option_a }}" required></label>
+      <label>Option B<input type="text" name="option_b" value="{{ q.option_b }}" required></label>
+      <label>Option C<input type="text" name="option_c" value="{{ q.option_c }}" required></label>
+      <label>Option D<input type="text" name="option_d" value="{{ q.option_d }}" required></label>
+      <label>Correct Answer
+        <select name="correct_answer" required>
+          <option value="A" {{ 'selected' if q.correct_answer == 'A' }}>A</option>
+          <option value="B" {{ 'selected' if q.correct_answer == 'B' }}>B</option>
+          <option value="C" {{ 'selected' if q.correct_answer == 'C' }}>C</option>
+          <option value="D" {{ 'selected' if q.correct_answer == 'D' }}>D</option>
+        </select>
+      </label>
+      <label>Marks<input type="number" name="marks" min="1" value="{{ q.marks }}" required></label>
+      <div class="actions"><button class="btn small" type="submit">Update Question</button></div>
+    </form>
+    <form method="post" action="{{ url_for('delete_question', question_id=q.id) }}" onsubmit="return confirm('Delete question?')">
+      <button class="btn danger small">Delete Question</button>
+    </form>
+  </details>
+  {% else %}<p>No questions added yet.</p>{% endfor %}
+</div>
+<div class="card">
+  <form method="get" class="inline-form wrap">
+    <label>Branch
+      <select name="branch" onchange="this.form.submit()">
+        <option value="ALL" {{ 'selected' if selected_branch == 'ALL' }}>All</option>
+        {% for b in BRANCHES %}<option value="{{ b }}" {{ 'selected' if selected_branch == b }}>{{ b }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Semester
+      <select name="sem" onchange="this.form.submit()">
+        <option value="ALL" {{ 'selected' if selected_sem == 'ALL' }}>All</option>
+        {% for s in SEMS %}<option value="{{ s }}" {{ 'selected' if selected_sem == s }}>Sem {{ s }}</option>{% endfor %}
+      </select>
+    </label>
+  </form>
+</div>
+<div class="grid two gap-lg">
+  <div class="card">
+    <h2>Leaderboard</h2>
+    <table>
+      <tr><th>Rank</th><th>Student</th><th>Branch</th><th>Sem</th><th>Score</th><th>Status</th><th>Warnings</th></tr>
+      {% for row in leaderboard %}
+      <tr><td>#{{ row.test_rank }}</td><td>{{ row.full_name or row.username }}</td><td>{{ row.branch }}</td><td>Sem {{ row.sem }}</td><td>{{ row.score }}</td><td>{{ row.status }}</td><td>{{ row.warnings_count }}</td></tr>
+      {% else %}<tr><td colspan="7">No attempts yet.</td></tr>{% endfor %}
+    </table>
+  </div>
+  <div class="card">
+    <h2>Violation Log</h2>
+    <table>
+      <tr><th>Student</th><th>Branch</th><th>Sem</th><th>Type</th><th>Time</th></tr>
+      {% for v in violations %}<tr><td>{{ v.username }}</td><td>{{ v.branch }}</td><td>Sem {{ v.sem }}</td><td>{{ v.violation_type }}</td><td>{{ human_dt(v.created_at) }}</td></tr>{% else %}<tr><td colspan="5">No violations yet.</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

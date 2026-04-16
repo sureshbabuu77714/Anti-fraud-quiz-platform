@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Admin Dashboard</h1>
+<div class="card">
+  <form method="get" class="inline-form wrap">
+    <label>Branch
+      <select name="branch" onchange="this.form.submit()">
+        <option value="ALL" {{ 'selected' if selected_branch == 'ALL' }}>All</option>
+        {% for b in BRANCHES %}<option value="{{ b }}" {{ 'selected' if selected_branch == b }}>{{ b }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Semester
+      <select name="sem" onchange="this.form.submit()">
+        <option value="ALL" {{ 'selected' if selected_sem == 'ALL' }}>All</option>
+        {% for s in SEMS %}<option value="{{ s }}" {{ 'selected' if selected_sem == s }}>Sem {{ s }}</option>{% endfor %}
+      </select>
+    </label>
+  </form>
+</div>
+<div class="grid four stats">
+  <div class="card"><h3>{{ pending_teachers|length }}</h3><p>Pending Teachers</p></div>
+  <div class="card"><h3>{{ teachers|length }}</h3><p>Total Teachers</p></div>
+  <div class="card"><h3>{{ students|length }}</h3><p>Total Students</p></div>
+  <div class="card"><h3>{{ tests|length }}</h3><p>Total Tests</p></div>
+</div>
+
+<div class="card">
+  <h2>Teacher Applications</h2>
+  <table>
+    <tr><th>Name</th><th>Username</th><th>Branch</th><th>Email</th><th>Credentials</th><th>Action</th></tr>
+    {% for t in pending_teachers %}
+    <tr>
+      <td>{{ t.full_name }}</td><td>{{ t.username }}</td><td>{{ t.branch }}</td><td>{{ t.email }}</td><td>{{ t.credentials }}</td>
+      <td class="actions">
+        <form method="post" action="{{ url_for('update_teacher_status', user_id=t.id, branch=selected_branch, sem=selected_sem) }}"><input type="hidden" name="action" value="approve"><button class="btn small">Approve</button></form>
+        <form method="post" action="{{ url_for('update_teacher_status', user_id=t.id, branch=selected_branch, sem=selected_sem) }}"><input type="hidden" name="action" value="delete"><button class="btn danger small">Reject &amp; Delete</button></form>
+      </td>
+    </tr>
+    {% else %}<tr><td colspan="6">No pending applications.</td></tr>{% endfor %}
+  </table>
+</div>
+
+<div class="card">
+  <h2>Manage Teachers</h2>
+  <table>
+    <tr><th>Username</th><th>Name</th><th>Branch</th><th>Status</th><th>Approved At</th><th>Action</th></tr>
+    {% for t in teachers %}
+    <tr>
+      <td>{{ t.username }}</td><td>{{ t.full_name }}</td><td>{{ t.branch }}</td>
+      <td>{% if t.is_rejected %}Rejected{% elif t.is_approved %}Approved{% else %}Pending{% endif %}</td>
+      <td>{{ human_dt(t.approved_at) }}</td>
+      <td class="actions stack-mobile">
+        <a class="btn small" href="{{ url_for('teacher_details', user_id=t.id) }}">Details</a>
+        <form method="post" action="{{ url_for('update_teacher_status', user_id=t.id, branch=selected_branch, sem=selected_sem) }}" onsubmit="return confirm('Remove this teacher?')"><input type="hidden" name="action" value="delete"><button class="btn danger small">Remove</button></form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="grid two gap-lg">
+  <div class="card">
+    <h2>All Students</h2>
+    <table>
+      <tr><th>Username</th><th>Name</th><th>Branch</th><th>Sem</th><th>Email</th></tr>
+      {% for s in students %}<tr><td>{{ s.username }}</td><td>{{ s.full_name }}</td><td>{{ s.branch }}</td><td>Sem {{ s.sem }}</td><td>{{ s.email }}</td></tr>{% else %}<tr><td colspan="5">No students found.</td></tr>{% endfor %}
+    </table>
+  </div>
+  <div class="card">
+    <h2>All Tests</h2>
+    <table>
+      <tr><th>Title</th><th>Targets</th><th>Teacher</th><th>Start</th><th>End</th><th>Action</th></tr>
+      {% for t in tests %}
+        <tr>
+          <td>{{ t.title }}</td><td>{{ target_label(t.target_branches, t.target_sems) }}</td><td>{{ t.teacher_name }}</td><td>{{ human_dt(t.scheduled_at) }}</td><td>{{ human_dt(t.end_at) }}</td>
+          <td class="actions stack-mobile"><a class="btn small" href="{{ url_for('manage_test', test_id=t.id) }}">Open Test Details</a><form method="post" action="{{ url_for('admin_delete_test', test_id=t.id, branch=selected_branch, sem=selected_sem) }}" onsubmit="return confirm('Delete this test?')"><button class="btn danger small">Delete</button></form></td>
+        </tr>
+      {% else %}<tr><td colspan="6">No tests found.</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+
+{% endblock %}

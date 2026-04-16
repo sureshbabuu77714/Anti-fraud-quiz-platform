@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <h1>Result - {{ attempt.title }}</h1>
+  <p><strong>Status:</strong> {{ attempt.status }}</p>
+  <p><strong>Score:</strong> {{ attempt.score }} / {{ attempt.total_marks }}</p>
+  <p><strong>Warnings:</strong> {{ attempt.warnings_count }}</p>
+  <p><strong>Completed At:</strong> {{ human_dt(attempt.completed_at) }}</p>
+  <p><strong>Leaderboard Scope:</strong> {{ attempt.branch }} / Sem {{ attempt.sem }}</p>
+  <p><strong>Answers Released At:</strong> {{ human_dt(attempt.answer_release_at or attempt.end_at) }}</p>
+  {% if can_see_answers %}
+    <h2>Answer Review</h2>
+    {% for q in questions %}
+      <div class="question-block card muted">
+        <h3>Q{{ loop.index }}. {{ q.question_text }}</h3>
+        <p>Your answer: {{ answer_map.get(q.id, 'Not answered') }}</p>
+        <p>Correct answer: {{ q.correct_answer }}</p>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>Answers are not released yet.</p>
+  {% endif %}
+</div>
+
+<div class="grid two gap-lg">
+  <div class="card">
+    <h2>Leaderboard for this Test</h2>
+    <table>
+      <tr><th>Rank</th><th>Student</th><th>Score</th><th>Status</th><th>Warnings</th></tr>
+      {% for row in leaderboard %}
+      <tr>
+        <td>#{{ row.test_rank }}</td><td>{{ row.full_name or row.username }}</td><td>{{ row.score }}</td><td>{{ row.status }}</td><td>{{ row.warnings_count }}</td>
+      </tr>
+      {% else %}<tr><td colspan="5">No leaderboard data yet.</td></tr>{% endfor %}
+    </table>
+  </div>
+  <div class="card">
+    <h2>Violations for this Attempt</h2>
+    <table>
+      <tr><th>Type</th><th>Details</th><th>Time</th></tr>
+      {% for v in violations %}
+      <tr><td>{{ v.violation_type }}</td><td>{{ v.details or '-' }}</td><td>{{ human_dt(v.created_at) }}</td></tr>
+      {% else %}<tr><td colspan="3">No violations for this attempt.</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="form-wrap card">
+  <h1>{{ role|title }} Sign Up</h1>
+  <p class="small muted-text">Fill in the details below to create your account.</p>
+  <form method="post" class="form-grid two-col">
+    <label>Full name<input type="text" name="full_name"></label>
+    <label>Branch
+      <select name="branch" required>
+        {% for b in BRANCHES %}<option value="{{ b }}">{{ b }}</option>{% endfor %}
+      </select>
+    </label>
+    {% if role == 'student' %}
+    <label>Semester
+      <select name="sem" required>
+        {% for s in SEMS %}<option value="{{ s }}">Sem {{ s }}</option>{% endfor %}
+      </select>
+    </label>
+    {% endif %}
+    <label>Username<input type="text" name="username" required></label>
+    <label>Email<input type="email" name="email" required></label>
+    <label>Password<input type="password" name="password" required></label>
+    {% if role == 'teacher' %}
+    <label class="full">Credentials<textarea name="credentials" required placeholder="Degree, department, years of experience"></textarea></label>
+    {% endif %}
+    <button class="btn" type="submit">Create Account</button>
+  </form>
+</div>
+{% endblock %}

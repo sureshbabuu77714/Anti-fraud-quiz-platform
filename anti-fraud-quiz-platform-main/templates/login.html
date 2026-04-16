@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="form-wrap auth card">
+  <h1>{{ role|title }} Login</h1>
+  <p class="small muted-text">Enter your account details to continue.</p>
+  <form method="post" class="form-grid">
+    <label>Username<input type="text" name="username" required></label>
+    <label>Password<input type="password" name="password" required></label>
+    <button class="btn" type="submit">Login</button>
+  </form>
+  <div class="auth-links">
+    {% if role != 'admin' %}
+      <a href="{{ url_for('forgot_password', role=role) }}">Forgot password?</a>
+      <a href="{{ url_for('signup', role=role) }}">Create account</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

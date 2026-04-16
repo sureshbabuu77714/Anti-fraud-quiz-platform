@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero card">
+  <h1>Secure Quiz Platform for Schools and Colleges</h1>
+  <p>This platform supports Student, Teacher, and Admin workflows with quiz scheduling, automatic scoring, answer release control, and browser-based anti-fraud monitoring.</p>
+  <div class="hero-actions">
+    <a class="btn" href="{{ url_for('login', role='student') }}">Student Login</a>
+    <a class="btn muted-btn" href="{{ url_for('signup', role='student') }}">Student Sign Up</a>
+  </div>
+</section>
+
+<section class="grid three">
+  <div class="card muted">
+    <h3>Student</h3>
+    <p>Join available tests, track scores, and review attempt details test by test.</p>
+    <a class="btn small" href="{{ url_for('signup', role='student') }}">Create Student Account</a>
+  </div>
+  <div class="card muted">
+    <h3>Teacher</h3>
+    <p>Apply for access, create tests, manage questions, and review results branch-wise.</p>
+    <a class="btn small" href="{{ url_for('signup', role='teacher') }}">Teacher Sign Up</a>
+  </div>
+  <div class="card muted">
+    <h3>Admin</h3>
+    <p>Approve teachers, manage users, and oversee tests, results, and violations.</p>
+    <a class="btn small" href="{{ url_for('login', role='admin') }}">Admin Login</a>
+  </div>
+</section>
+
+<section class="grid two gap-lg">
+  <div class="card feature-list">
+    <h2 class="section-title">Test Security Rules</h2>
+    <ul>
+      <li>The quiz must stay visible for the full duration.</li>
+      <li>Switching tabs, minimizing the window, or leaving fullscreen triggers warnings.</li>
+      <li>Copying, selecting, and right-clicking on questions are blocked.</li>
+      <li>Starting the quiz means the student accepts these rules.</li>
+      <li>After repeated violations, the attempt is auto-disqualified.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2 class="section-title">Platform Highlights</h2>
+    <div class="mini-list">
+      <p>• Separate dashboards for Admin, Teacher, and Student</p>
+      <p>• Branch and semester-based access control</p>
+      <p>• Test-specific leaderboards and violation tracking</p>
+      <p>• Scheduled test window with start time and end time</p>
+      <p>• Result export and answer release after test end</p>
+    </div>
+    <p class="small muted-text">Browser apps can monitor and log many exam violations, but complete screenshot blocking needs a locked-down exam browser or native desktop environment.</p>
+  </div>
+</section>
+{% endblock %}
